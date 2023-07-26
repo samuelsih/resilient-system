@@ -1,0 +1,36 @@
+GOOGLE_CLOUD_PROJECT = YOUR_PROJECT_ID
+LAB_REPORT_SERVICE_URL = $(shell gcloud run services describe lab-report-service --platform managed --region us-east1 --format="value(status.address.url)")
+
+submit:
+	gcloud builds submit --tag gcr.io/$(GOOGLE_CLOUD_PROJECT)/lab-report-service
+
+deploy:
+	gcloud run deploy lab-report-service \
+	--image gcr.io/$(GOOGLE_CLOUD_PROJECT)/lab-report-service \
+	--platform managed \
+	--region us-east1 \
+	--allow-unauthenticated \
+	--max-instances=1
+
+test1:
+	curl -X POST \
+	-H "Content-Type: application/json" \
+	-d "{\"id\": 12}" \
+	$(LAB_REPORT_SERVICE_URL)
+
+test2:
+	curl -X POST \
+	-H "Content-Type: application/json" \
+	-d "{\"id\": 34}" \
+	$(LAB_REPORT_SERVICE_URL)
+
+test3:
+	curl -X POST \
+	-H "Content-Type: application/json" \
+	-d "{\"id\": 56}" \
+	$(LAB_REPORT_SERVICE_URL) 
+
+test:
+	make test1
+	make test2
+	make test3
